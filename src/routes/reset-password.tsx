@@ -17,7 +17,7 @@ function ResetPassword() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
-  return <section className="section-pad"><div className="mx-auto max-w-md px-4"><h1 className="font-display text-4xl font-bold">Choose a new password</h1>
+  return <section className="section-pad"><div className="mx-auto max-w-md px-4"><h1 className="font-display text-3xl font-bold sm:text-4xl">Choose a new password</h1>
     {done ? <><p className="mt-5" role="status">Your password has been updated.</p><Button asChild className="mt-5"><Link to="/account">Go to your account</Link></Button></> : token ? <form className="mt-6 space-y-4" onSubmit={async (e) => {
       e.preventDefault(); setError(""); const data = new FormData(e.currentTarget); const password = String(data.get("password"));
       if (password !== data.get("confirm")) { setError("Your passwords do not match."); return; }

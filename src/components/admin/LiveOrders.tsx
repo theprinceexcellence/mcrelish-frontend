@@ -17,6 +17,7 @@ import { useConfirm } from "@/components/ConfirmProvider";
 import { logAudit } from "@/lib/audit";
 import { formatNaira } from "@/lib/format";
 import { displayOrderTime } from "@/lib/order";
+import { mapsLink } from "@/lib/campaign";
 import { EmptyState, PageHeader, Pill, compactFieldClass, fieldClass } from "./ui";
 
 type Status = "new" | "preparing" | "ready" | "completed" | "cancelled";
@@ -32,6 +33,8 @@ type Order = {
   hub: string | null;
   zone_name: string | null;
   address: string | null;
+  delivery_lat?: number | null;
+  delivery_lng?: number | null;
   preferred_at: string;
   items: unknown;
   total: number;
@@ -154,6 +157,9 @@ function whatsappUrl(order: Order, items: OrderItem[]) {
     `Total: ${formatNaira(order.total)}`,
     fulfilment(order),
     ...(order.method === "delivery" && order.address ? [`Address: ${order.address}`] : []),
+    ...(order.method === "delivery" && order.delivery_lat != null && order.delivery_lng != null
+      ? [`Map pin: ${mapsLink(order.delivery_lat, order.delivery_lng)}`]
+      : []),
     `Preferred time: ${displayOrderTime(order.preferred_at)}`,
     `Payment: ${order.payment_status}`,
     `Status: ${order.status}`,
@@ -326,6 +332,16 @@ export function LiveOrders() {
                 <span className="block text-muted-foreground">
                   {order.address || "No delivery address provided"}
                 </span>
+              )}
+              {order.method === "delivery" && order.delivery_lat != null && order.delivery_lng != null && (
+                <a
+                  href={mapsLink(order.delivery_lat, order.delivery_lng)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-0.5 inline-flex font-semibold text-primary underline"
+                >
+                  Open pinned location in Google Maps
+                </a>
               )}
             </span>
           </p>

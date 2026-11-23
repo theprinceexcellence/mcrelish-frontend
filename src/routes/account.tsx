@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
+import { MarketingPreferences } from "@/components/MarketingPreferences";
 import { pageMeta } from "@/lib/page-meta";
 import { Button } from "@/components/ui/button";
 
@@ -11,8 +12,8 @@ function AccountPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   if (!ready) return <section className="section-pad px-4 text-center" role="status">Loading your account…</section>;
-  if (!user) return <section className="section-pad px-4 text-center"><h1 className="font-display text-4xl font-bold">Your McRelish account</h1><Button asChild className="mt-6"><Link to="/auth" search={{ next: "account" }}>Sign in</Link></Button></section>;
-  return <section className="section-pad"><div className="mx-auto max-w-lg px-4 sm:px-6"><h1 className="font-display text-4xl font-bold">Your profile</h1><p className="mt-3 break-all text-sm text-muted-foreground">{user.email}</p>
+  if (!user) return <section className="section-pad px-4 text-center"><h1 className="font-display text-3xl font-bold sm:text-4xl">Your McRelish account</h1><Button asChild className="mt-6"><Link to="/auth" search={{ next: "account" }}>Sign in</Link></Button></section>;
+  return <section className="section-pad"><div className="mx-auto max-w-lg px-4 sm:px-6"><h1 className="font-display text-3xl font-bold sm:text-4xl">Your profile</h1><p className="mt-3 break-all text-sm text-muted-foreground">{user.email}</p>
     {!profile ? <p className="mt-5 text-sm">Loading your profile… <Button variant="link" onClick={() => void refreshProfile().catch(() => setError("Your profile could not be loaded. Please retry."))}>Retry</Button></p> : <form key={profile.id + profile.full_name + profile.phone} className="mt-6 space-y-4" onSubmit={async (e) => {
       e.preventDefault(); setBusy(true); setMessage(""); setError("");
       const data = new FormData(e.currentTarget);
@@ -26,6 +27,7 @@ function AccountPage() {
       <Button type="submit" disabled={busy} className="min-h-12 w-full">{busy ? "Saving…" : "Save profile"}</Button>
     </form>}
     {message && <p role="status" className="mt-4 text-sm text-primary">{message}</p>}{error && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}
+    <MarketingPreferences />
     <div className="mt-6 flex flex-wrap gap-3"><Button asChild variant="outline"><Link to="/menu">Browse menu</Link></Button>{user.roles.length > 0 && <Button asChild><Link to="/admin">Open dashboard</Link></Button>}<Button variant="ghost" onClick={() => void signOut().catch(() => setError("Unable to sign out. Please retry."))}>Sign out</Button></div>
   </div></section>;
 }

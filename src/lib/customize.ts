@@ -38,6 +38,7 @@ export function nextExtraQty(current: number, delta: number, max?: number): numb
 /** Human-readable lines describing the selection, for cart, receipt and WhatsApp. */
 export function describeSelection(product: Product, sel: Selection): string[] {
   const lines: string[] = [];
+  if (product.includes?.length) lines.push(`Includes: ${product.includes.join(", ")}`);
   if (product.meals) {
     const meal = product.meals.find((m) => m.id === sel.options["meal"]);
     if (meal) lines.push(meal.id === NO_MEAL ? meal.label : `${meal.label} (${formatNaira(meal.price)})`);

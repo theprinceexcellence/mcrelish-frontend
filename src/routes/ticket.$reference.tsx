@@ -42,7 +42,7 @@ function TicketPage() {
     return () => clearTimeout(id);
   }, [ticket]);
 
-  if (error) return <section className="section-pad px-4 text-center"><h1 className="font-display text-4xl font-bold">Ticket unavailable</h1><p className="mt-3 text-sm text-muted-foreground">{error}</p><Button asChild className="mt-6"><Link to="/menu">Back to menu</Link></Button></section>;
+  if (error) return <section className="section-pad px-4 text-center"><h1 className="font-display text-3xl font-bold sm:text-4xl">Ticket unavailable</h1><p className="mt-3 text-sm text-muted-foreground">{error}</p><Button asChild className="mt-6"><Link to="/menu">Back to menu</Link></Button></section>;
   if (!ticket) return <section className="section-pad px-4 text-center" role="status"><Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" /></section>;
 
   const filename = `McRelish-${ticket.reference}.pdf`;
@@ -66,7 +66,7 @@ function TicketPage() {
       <div className="mx-auto max-w-[640px]">
         <div className="mb-8 text-center">
           <CheckCircle2 className="mx-auto h-12 w-12 text-primary" aria-hidden="true" />
-          <h1 className="mt-4 font-display text-4xl font-bold sm:text-5xl">{paid ? "Payment received" : "Awaiting payment"}</h1>
+          <h1 className="mt-4 font-display text-3xl font-bold sm:text-5xl">{paid ? "Payment received" : "Awaiting payment"}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{paid ? "Your order is in. Keep this ticket for pickup or delivery." : "This order hasn't been paid yet."}</p>
         </div>
         <OrderTicket ref={ref} ticket={ticket} />

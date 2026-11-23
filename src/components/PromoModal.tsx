@@ -4,13 +4,14 @@ import { Minus, Plus } from "lucide-react";
 import { PriceTag } from "@/components/PriceTag";
 import { usePresence } from "@/hooks/use-presence";
 import { useScrollLock } from "@/hooks/use-scroll-lock";
-import { discountPercent, formatNaira } from "@/lib/format";
+import { DELIVERY_START, discountPercent } from "@/lib/campaign";
+import { formatNaira } from "@/lib/format";
 import { usePreloaderDone } from "@/lib/preloader";
 import { useHeroPromo } from "@/lib/promo";
 import { useStore } from "@/lib/store";
 
-// Counts down to 9 November 2026, Lagos time.
-const TARGET = Date.parse("2026-11-09T00:00:00+01:00");
+// Counts down to the delivery start date, Lagos time.
+const TARGET = Date.parse(`${DELIVERY_START}T00:00:00+01:00`);
 const PAGES = new Set(["/", "/menu", "/deals", "/locations", "/about", "/contact"]);
 
 function remaining(now: number) {
@@ -83,7 +84,7 @@ export function PromoModal() {
   if (!presence.rendered || !product) return null;
 
   const left = remaining(now);
-  const percent = discountPercent(product.price, product.wasPrice);
+  const percent = product.originalPrice ? discountPercent(product.price, product.originalPrice) : 0;
   const items = promo.subtitle
     .split("·")
     .map((part) => part.trim())
@@ -163,10 +164,9 @@ export function PromoModal() {
               ))}
             </ul>
             <PriceTag
+              product={product}
+              showPill={false}
               className="mt-4 justify-center text-3xl font-bold"
-              price={product.price}
-              wasPrice={product.wasPrice}
-              showBadge={false}
             />
 
             <div className="mt-5 rounded-2xl bg-ink/30 px-3 pb-3 pt-3.5">

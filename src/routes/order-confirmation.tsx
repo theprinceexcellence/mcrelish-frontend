@@ -30,5 +30,5 @@ function ConfirmationPage() {
   }, []);
   if (!ready) return <section className="section-pad px-4 text-center" role="status">Loading your order details…</section>;
   if (order) return <OrderConfirmation order={order} />;
-  return <section className="section-pad px-4 text-center"><h1 className="font-display text-4xl font-bold">No order request to show</h1><p className="mt-3 text-sm text-muted-foreground">Complete checkout to prepare your order details.</p><Button asChild className="mt-6"><Link to="/menu">View menu</Link></Button></section>;
+  return <section className="section-pad px-4 text-center"><h1 className="font-display text-3xl font-bold sm:text-4xl">No order request to show</h1><p className="mt-3 text-sm text-muted-foreground">Complete checkout to prepare your order details.</p><Button asChild className="mt-6"><Link to="/menu">View menu</Link></Button></section>;
 }

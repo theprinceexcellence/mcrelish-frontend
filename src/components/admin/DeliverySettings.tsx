@@ -9,7 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { EmptyState, Field, PageHeader, Panel, Pill, SkeletonRows, fieldClass } from "./ui";
 
-type Zone = { id: string; name: string; fee: number; active: boolean; created_at: string };
+type Zone = {
+  id: string;
+  name: string;
+  fee: number;
+  active: boolean;
+  created_at: string;
+  lat?: number | null;
+  lng?: number | null;
+};
 type Store = { id: number; store_open: boolean; note: string; updated_at: string };
 
 function audit(action: string, details: Record<string, unknown>) {
@@ -30,11 +38,24 @@ function DeliveryZoneRow({
   const confirm = useConfirm();
   const [busy, setBusy] = useState(false);
 
+  const [lat, setLat] = useState(zone.lat == null ? "" : String(zone.lat));
+  const [lng, setLng] = useState(zone.lng == null ? "" : String(zone.lng));
+
   useEffect(() => {
     setFee(String(zone.fee));
   }, [zone.fee]);
 
-  async function update(patch: { fee?: number; active?: boolean }) {
+  useEffect(() => {
+    setLat(zone.lat == null ? "" : String(zone.lat));
+    setLng(zone.lng == null ? "" : String(zone.lng));
+  }, [zone.lat, zone.lng]);
+
+  async function update(patch: {
+    fee?: number;
+    active?: boolean;
+    lat?: number | null;
+    lng?: number | null;
+  }) {
     setBusy(true);
     try {
       const data = await api<Zone>(`/api/admin/zones/${encodeURIComponent(zone.id)}`, {
@@ -48,6 +69,13 @@ function DeliveryZoneRow({
           name: zone.name,
           from: zone.fee,
           to: patch.fee,
+        });
+      } else if (patch.lat !== undefined) {
+        audit("delivery_zone_position", {
+          id: zone.id,
+          name: zone.name,
+          lat: patch.lat,
+          lng: patch.lng,
         });
       } else {
         audit("delivery_zone_status", { id: zone.id, active: patch.active });
@@ -82,11 +110,59 @@ function DeliveryZoneRow({
   }
 
   const dirty = Number(fee) !== zone.fee;
+  const mapped = zone.lat != null && zone.lng != null;
+  const coordsDirty =
+    lat !== (zone.lat == null ? "" : String(zone.lat)) ||
+    lng !== (zone.lng == null ? "" : String(zone.lng));
+
+  function saveCoords() {
+    if (!lat.trim() && !lng.trim()) {
+      void update({ lat: null, lng: null });
+      return;
+    }
+    const la = Number(lat);
+    const ln = Number(lng);
+    if (
+      !lat.trim() ||
+      !lng.trim() ||
+      !Number.isFinite(la) ||
+      !Number.isFinite(ln) ||
+      Math.abs(la) > 90 ||
+      Math.abs(ln) > 180
+    ) {
+      toast.error("Enter both a latitude and a longitude, or leave both empty");
+      return;
+    }
+    void update({ lat: Number(la.toFixed(6)), lng: Number(ln.toFixed(6)) });
+  }
+
+  function fillFromDevice() {
+    if (!("geolocation" in navigator)) {
+      toast.error("This browser can't share its location");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setLat(coords.latitude.toFixed(6));
+        setLng(coords.longitude.toFixed(6));
+      },
+      () =>
+        toast.error("Couldn't get this device's location. Allow location access and try again."),
+      { enableHighAccuracy: true, timeout: 15000 },
+    );
+  }
 
   return (
     <li className="flex flex-wrap items-center gap-x-4 gap-y-3 py-3.5 first:pt-0 last:pb-0">
       <div className="min-w-40 flex-1">
-        <p className="font-medium">{zone.name}</p>
+        <p className="flex flex-wrap items-center gap-2 font-medium">
+          {zone.name}
+          {mapped ? (
+            <Pill tone="success">Mapped</Pill>
+          ) : (
+            <Pill tone="warning">No map position</Pill>
+          )}
+        </p>
         <p className="text-xs text-muted-foreground">Currently {formatNaira(zone.fee)}</p>
       </div>
 
@@ -152,6 +228,58 @@ function DeliveryZoneRow({
       >
         <Trash2 aria-hidden="true" />
       </Button>
+
+      <details className="basis-full" open={!mapped}>
+        <summary className="cursor-pointer select-none text-xs font-medium text-muted-foreground">
+          Map position (used to match pinned locations to this area)
+        </summary>
+        <div className="mt-3 flex flex-wrap items-end gap-2">
+          <Field label="Latitude" htmlFor={`${id}-lat`} className="w-36">
+            <input
+              id={`${id}-lat`}
+              className={fieldClass}
+              inputMode="decimal"
+              value={lat}
+              placeholder="6.2107"
+              disabled={busy}
+              onChange={(e) => setLat(e.target.value)}
+            />
+          </Field>
+          <Field label="Longitude" htmlFor={`${id}-lng`} className="w-36">
+            <input
+              id={`${id}-lng`}
+              className={fieldClass}
+              inputMode="decimal"
+              value={lng}
+              placeholder="7.0743"
+              disabled={busy}
+              onChange={(e) => setLng(e.target.value)}
+            />
+          </Field>
+          <Button
+            type="button"
+            variant="outline"
+            className="mb-6"
+            disabled={busy}
+            onClick={fillFromDevice}
+          >
+            <MapPin aria-hidden="true" />
+            Use my current location
+          </Button>
+          <Button
+            type="button"
+            className="mb-6"
+            disabled={busy || !coordsDirty}
+            onClick={saveCoords}
+          >
+            Save position
+          </Button>
+        </div>
+        <p className="-mt-4 text-xs text-muted-foreground">
+          Stand in the middle of the area and tap the location button, or paste coordinates from
+          Google Maps (right-click a spot).
+        </p>
+      </details>
     </li>
   );
 }
@@ -351,6 +479,16 @@ export function DeliverySettings() {
             </EmptyState>
           ) : (
             <>
+              {zones.some((z) => z.lat == null || z.lng == null) && (
+                <p
+                  role="status"
+                  className="mb-3 rounded-lg bg-amber-100 px-3 py-2 text-sm text-amber-900"
+                >
+                  {zones.filter((z) => z.lat == null || z.lng == null).length} area(s) have no map
+                  position yet. Add one so a customer's pinned location is matched to the right area
+                  automatically; areas without it are skipped.
+                </p>
+              )}
               <p className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
                 {zones.length} {zones.length === 1 ? "area" : "areas"}
                 <Pill tone="success">{zones.filter((z) => z.active).length} active</Pill>

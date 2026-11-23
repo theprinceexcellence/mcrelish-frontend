@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   BarChart3,
   ExternalLink,
+  FileText,
   ImageIcon,
   ClipboardList,
   Loader2,
@@ -21,10 +22,11 @@ import { DeliverySettings } from "@/components/admin/DeliverySettings";
 import { SalesAnalytics } from "@/components/admin/SalesAnalytics";
 import { StaffAudit } from "@/components/admin/StaffAudit";
 import { Banner } from "@/components/admin/Banner";
+import { LegalEditor } from "@/components/admin/LegalEditor";
 import { initials } from "@/components/admin/ui";
 
 type Role = "admin" | "staff" | "dispatcher";
-type Tab = "orders" | "menu" | "delivery" | "analytics" | "banner" | "staff";
+type Tab = "orders" | "menu" | "delivery" | "analytics" | "banner" | "legal" | "staff";
 
 const TABS: { id: Tab; label: string; short: string; icon: LucideIcon; roles: Role[] }[] = [
   {
@@ -50,6 +52,7 @@ const TABS: { id: Tab; label: string; short: string; icon: LucideIcon; roles: Ro
   },
   { id: "analytics", label: "Sales Analytics", short: "Sales", icon: BarChart3, roles: ["admin"] },
   { id: "banner", label: "Home Banner", short: "Banner", icon: ImageIcon, roles: ["admin"] },
+  { id: "legal", label: "Legal Pages", short: "Legal", icon: FileText, roles: ["admin"] },
   { id: "staff", label: "Staff & Activity", short: "Staff", icon: Users, roles: ["admin"] },
 ];
 
@@ -125,9 +128,9 @@ function AdminPage() {
     <div className="admin-ui min-h-screen bg-muted/40 lg:grid lg:grid-cols-[16.5rem_minmax(0,1fr)]">
       <aside className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card pb-[env(safe-area-inset-bottom)] lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:border-r lg:border-t-0 lg:pb-0">
         <Link
-          to="/"
+          to="/admin"
           className="hidden items-center gap-2.5 px-5 py-5 lg:flex"
-          aria-label="McRelish website"
+          aria-label="McRelish dashboard"
         >
           <img src="/favicon.png" alt="" className="size-8" />
           <span className="leading-tight">
@@ -206,7 +209,7 @@ function AdminPage() {
 
       <div className="min-w-0">
         <div className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border bg-card/95 px-4 py-2.5 backdrop-blur lg:hidden">
-          <Link to="/" className="flex items-center gap-2" aria-label="McRelish website">
+          <Link to="/admin" className="flex items-center gap-2" aria-label="McRelish dashboard">
             <img src="/favicon.png" alt="" className="size-7" />
             <span className="text-sm font-semibold">{active.label}</span>
           </Link>
@@ -231,6 +234,7 @@ function AdminPage() {
             {active.id === "delivery" && <DeliverySettings />}
             {active.id === "analytics" && <SalesAnalytics />}
             {active.id === "banner" && <Banner />}
+            {active.id === "legal" && <LegalEditor />}
             {active.id === "staff" && <StaffAudit />}
           </div>
         </main>

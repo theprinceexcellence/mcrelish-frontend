@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { pageMeta } from "@/lib/page-meta";
 import cateringImg from "@/assets/catering.jpg";
 import { WhyMcRelish } from "@/components/WhyMcRelish";
 import { business } from "@/data/menu";
@@ -9,14 +10,7 @@ const description =
 
 export const Route = createFileRoute("/about")({
   head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
+    meta: pageMeta(title, description),
   }),
   component: AboutPage,
 });
@@ -35,7 +29,7 @@ function AboutPage() {
       <section className="px-4 py-14 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <p className="eyebrow">Our story</p>
-          <h1 className="mt-4 max-w-3xl font-display text-5xl font-bold lg:text-6xl">
+          <h1 className="mt-4 max-w-3xl font-display text-4xl font-bold sm:text-5xl lg:text-6xl">
             Where African culinary heritage meets modern excellence.
           </h1>
         </div>
@@ -81,7 +75,7 @@ function AboutPage() {
 
       <section className="section-pad">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold">What we do today</h2>
+          <h2 className="text-[2rem] font-bold leading-tight sm:text-4xl">What we do today</h2>
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
             Through our food hubs, curated meal boxes, weekend bulk orders, and event
             catering, we make enjoying delicious, high-quality meals simple and

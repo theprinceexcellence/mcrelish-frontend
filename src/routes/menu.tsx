@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { pageMeta } from "@/lib/page-meta";
 import { cateringImage, cateringMenu } from "@/data/menu";
 import { MenuBrowser } from "@/components/MenuBrowser";
 
@@ -8,14 +9,7 @@ const description =
 
 export const Route = createFileRoute("/menu")({
   head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
+    meta: pageMeta(title, description),
   }),
   component: MenuPage,
 });
@@ -40,7 +34,7 @@ function MenuPage() {
           <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr] lg:items-start">
             <div>
               <p className="eyebrow border-cream/20 bg-cream/10 text-cream">Weddings, corporate & large gatherings</p>
-              <h2 className="mt-4 text-4xl font-bold">Catering services</h2>
+              <h2 className="mt-4 text-[2rem] font-bold leading-tight sm:text-4xl">Catering services</h2>
               <p className="mt-3 text-sm text-cream/75">
                 McRelish delivers complete African menus structured for quality, presentation, and timely service.
                 Catering is priced by quotation based on your guest count and menu.

@@ -10,7 +10,7 @@ export function OrderCta() {
         <div className="card-surface grid overflow-hidden lg:grid-cols-2">
           <div className="order-2 p-8 lg:order-1 lg:p-12">
             <p className="eyebrow">Online ordering</p>
-            <h2 id="order-cta-heading" className="mt-4 text-4xl font-bold">
+            <h2 id="order-cta-heading" className="mt-4 text-[2rem] font-bold leading-tight sm:text-4xl">
               Your next meal is just a few clicks away.
             </h2>
             <p className="mt-3 text-sm text-muted-foreground">

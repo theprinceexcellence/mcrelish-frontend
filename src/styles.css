@@ -47,9 +47,11 @@
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --shadow-card: 0 1px 2px rgba(15, 14, 13, 0.04), 0 12px 32px -18px rgba(15, 14, 13, 0.35);
   --shadow-lift: 0 18px 40px -20px rgba(200, 57, 43, 0.45);
+  --shadow-header: 0 2px 8px color-mix(in oklab, var(--foreground) 8%, transparent);
 }
 
 :root {
+  --header-height: 3.5rem;
   --radius: 1rem;
   --background: oklch(0.99 0.005 85);
   --foreground: oklch(0.17 0.008 60);
@@ -75,6 +77,10 @@
   --ink: oklch(0.17 0.008 60);
   --cream: oklch(0.973 0.008 85);
   --surface: oklch(0.985 0.006 85);
+}
+
+@media (width >= 1024px) {
+  :root { --header-height: 4.375rem; }
 }
 
 @layer base {
@@ -272,8 +278,15 @@
 @keyframes menu-down { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
 @keyframes menu-up { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-12px); } }
 
+.mobile-nav-overlay[data-state="open"] { animation: overlay-in 480ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.mobile-nav-overlay[data-state="closed"] { animation: overlay-out 380ms ease-out both; }
+.mobile-nav-panel[data-state="open"] { animation: nav-slide-in 480ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.mobile-nav-panel[data-state="closed"] { animation: nav-slide-out 380ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+@keyframes nav-slide-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes nav-slide-out { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+
 @media (prefers-reduced-motion: reduce) {
-  .glass-overlay, .sheet-overlay, .sheet-in, .drawer-in, .menu-in { animation-duration: 1ms !important; }
+  .glass-overlay, .sheet-overlay, .sheet-in, .drawer-in, .menu-in, .mobile-nav-panel, .mobile-nav-overlay { animation-duration: 1ms !important; }
 }
 
 @utility safe-bottom {

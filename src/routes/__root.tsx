@@ -1,11 +1,21 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Outlet, Link, createRootRouteWithContext, useRouter, HeadContent, Scripts, useRouterState } from "@tanstack/react-router";
+import {
+  Outlet,
+  Link,
+  createRootRouteWithContext,
+  useRouter,
+  HeadContent,
+  Scripts,
+  useRouterState,
+} from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { StoreProvider } from "@/lib/store";
 import { Header } from "@/components/Header";
+import { pageMeta } from "@/lib/page-meta";
+import { SITE_URL, shareImageUrl } from "@/lib/site";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
 import { ProductModal } from "@/components/ProductModal";
@@ -14,7 +24,7 @@ import { Preloader, PreloaderReady } from "@/components/Preloader";
 import { AuthProvider } from "@/lib/auth";
 import { ConfirmProvider } from "@/components/ConfirmProvider";
 import { Toaster } from "@/components/ui/sonner";
-import { catalogQuery } from '@/lib/catalog-query';
+import { catalogQuery } from "@/lib/catalog-query";
 
 function NotFoundComponent() {
   return (
@@ -76,15 +86,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "McRelish | African Food Ordering in Awka" },
-      {
-        name: "description",
-        content:
-          "Order fresh African meals, family packs, gift food boxes and event catering from McRelish in Awka, Anambra State.",
-      },
+      ...pageMeta(
+        "McRelish | Order The Best Jollof In Awka",
+        "Order the best jollof rice in Awka from McRelish: special jollof, family packs, gift food boxes and event catering. Pickup and delivery in Awka, Anambra State.",
+      ),
       { name: "author", content: "McRelish" },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:site_name", content: "McRelish" },
+      { property: "og:url", content: SITE_URL },
+      { property: "og:image:alt", content: "McRelish logo" },
+      { property: "og:locale", content: "en_NG" },
       { name: "theme-color", content: "#C8392B" },
     ],
     links: [
@@ -102,13 +112,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         type: "application/ld+json" as const,
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "FoodEstablishment",
+          "@type": "Restaurant",
           name: "McRelish",
           description:
-            "African meals, family packs, gift food boxes and event catering in Awka, Anambra State.",
+            "McRelish serves the best jollof rice in Awka: special jollof, family packs, gift food boxes and event catering, for pickup and delivery.",
+          image: shareImageUrl,
+          logo: shareImageUrl,
           telephone: "+2347070492039",
           email: "info@mcrelish.com",
-          url: "https://mcrelish.lovable.app",
+          url: SITE_URL,
+          servesCuisine: ["Nigerian", "African", "Jollof rice"],
+          priceRange: "₦₦",
+          acceptsReservations: false,
+          hasMenu: `${SITE_URL}/menu`,
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: "Awka",
+            addressRegion: "Anambra State",
+            addressCountry: "NG",
+          },
+          areaServed: { "@type": "City", name: "Awka" },
           sameAs: [
             "https://www.instagram.com/mcrelish_/",
             "https://tiktok.com/@mcrelish",
@@ -142,28 +165,30 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const inAdmin = useRouterState({ select: (state) => state.location.pathname.startsWith("/admin") });
+  const inAdmin = useRouterState({
+    select: (state) => state.location.pathname.startsWith("/admin"),
+  });
 
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-      <StoreProvider>
-      <ConfirmProvider>
-        <PreloaderReady />
-        <div id="app-shell" className="flex min-h-screen flex-col">
-          {!inAdmin && <Header />}
-          <main className="flex-1">
-            {/* Required: nested routes render here. */}
-            <Outlet />
-          </main>
-          {!inAdmin && <Footer />}
-        </div>
-        <ProductModal />
-        <PromoModal />
-        <Toaster position="top-center" />
-        <CartDrawer />
-      </ConfirmProvider>
-      </StoreProvider>
+        <StoreProvider>
+          <ConfirmProvider>
+            <PreloaderReady />
+            <div id="app-shell" className="flex min-h-screen flex-col">
+              {!inAdmin && <Header />}
+              <main className="flex-1">
+                {/* Required: nested routes render here. */}
+                <Outlet />
+              </main>
+              {!inAdmin && <Footer />}
+            </div>
+            <ProductModal />
+            <PromoModal />
+            <Toaster position="top-center" />
+            <CartDrawer />
+          </ConfirmProvider>
+        </StoreProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

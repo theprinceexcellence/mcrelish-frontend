@@ -24,8 +24,6 @@ export type Product = {
   image: string;
   category: CategoryId;
   badge?: string;
-  /** Regular price shown struck through beside a reduced price. */
-  wasPrice?: number;
   note?: string;
   serves?: string;
   options?: OptionGroup[];
@@ -34,6 +32,10 @@ export type Product = {
   /** Add-ons counted per portion. soloPrice applies when it is the only thing ordered. max caps the portions (e.g. Extra Rice tops up one plate). */
   extras?: { id: string; label: string; price: number; group: "Extras" | "Sides"; soloPrice?: number; max?: number }[];
   available: boolean;
+  /** Full value before a promotional price; shown crossed out with a discount badge. */
+  originalPrice?: number;
+  /** Fixed bundle contents, listed on cart, checkout, ticket and WhatsApp. */
+  includes?: string[];
 };
 
 export type CategoryId = string;
@@ -131,7 +133,8 @@ export const products: Product[] = [
     description:
       "A plate of McRelish Special Jollof, 1 peppered chicken, 2 pieces of peppered beef, 1 portion of plantain, 1 coleslaw, 1 bottled water and 1 zobo drink.",
     price: 5500,
-    wasPrice: 6800,
+    originalPrice: 6800,
+    includes: ["1000ml McRelish Special Jollof (with extra rice)", "1 Peppered Chicken", "2 Pieces of Peppered Beef", "1 Portion of Plantain", "1 Coleslaw", "1 Bottled Water", "1 Zobo Drink"],
     image: jollyFest,
     category: "daily",
     badge: "November Jolly Fest",

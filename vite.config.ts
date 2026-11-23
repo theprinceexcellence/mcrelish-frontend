@@ -12,5 +12,11 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
     spa: { enabled: true },
+    prerender: {
+      enabled: true,
+      crawlLinks: true,
+      filter: ({ path }: { path: string }) =>
+        ["/", "/menu", "/deals", "/locations", "/about", "/contact", "/privacy", "/terms"].includes(path),
+    },
   },
 });

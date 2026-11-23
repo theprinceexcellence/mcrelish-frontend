@@ -10,7 +10,7 @@ type AuthValue = {
   profile: Profile | null;
   ready: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, fullName: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, marketing?: { channels: string[]; version: string }) => Promise<void>;
   signInWithGoogle: (credential: string) => Promise<void>;
   /** Used after a password reset, which signs the customer in. */
   applySession: (session: Session) => void;
@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     profile: account ? { id: account.id, full_name: account.full_name, phone: account.phone } : null,
     ready,
     signIn: async (email, password) => applySession(await api<Session>("/api/auth/login", { body: { email, password } })),
-    signUp: async (email, password, fullName) => applySession(await api<Session>("/api/auth/signup", { body: { email, password, full_name: fullName } })),
+    signUp: async (email, password, fullName, marketing) => applySession(await api<Session>("/api/auth/signup", { body: { email, password, full_name: fullName, ...(marketing?.channels.length ? { marketing_opt_in: true, marketing_channels: marketing.channels, consent_version: marketing.version } : {}) } })),
     signInWithGoogle: async (credential) => applySession(await api<Session>("/api/auth/google", { body: { credential } })),
     applySession,
     updateProfile: async (fullName, phone) => { setAccount((await api<{ user: SessionUser }>("/api/auth/profile", { body: { full_name: fullName, phone } })).user); },

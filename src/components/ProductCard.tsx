@@ -1,7 +1,7 @@
 import { Plus } from "lucide-react";
 import type { Product } from "@/data/menu";
-import { PriceTag } from "@/components/PriceTag";
 import { useStore } from "@/lib/store";
+import { PriceTag } from "@/components/PriceTag";
 
 export function ProductCard({ product }: { product: Product }) {
   const { openProduct } = useStore();
@@ -40,7 +40,7 @@ export function ProductCard({ product }: { product: Product }) {
           </p>
         )}
         <div className="mt-4 flex items-center justify-between gap-3 pt-1">
-          <span className="inline-flex flex-wrap items-center gap-x-1 text-lg font-bold">{product.meals && <span className="text-xs font-medium text-muted-foreground">From </span>}<PriceTag price={product.price} wasPrice={product.wasPrice} /></span>
+          <PriceTag product={product} className="text-lg font-bold" />
           <button
             type="button"
             onClick={() => openProduct(product)}

@@ -14,7 +14,7 @@ export function DealsSection() {
     <section className="section-pad bg-ink text-cream" aria-labelledby="deals-heading">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="eyebrow border-cream/20 bg-cream/10 text-cream">Value packs</p>
-        <h2 id="deals-heading" className="mt-3 text-4xl font-bold">
+        <h2 id="deals-heading" className="mt-3 text-[2rem] font-bold leading-tight sm:text-4xl">
           Packs & boxes worth sharing
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-cream/70">

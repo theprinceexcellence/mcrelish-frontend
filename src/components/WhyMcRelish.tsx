@@ -28,7 +28,7 @@ export function WhyMcRelish() {
     <section className="section-pad bg-cream" aria-labelledby="why-heading">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="eyebrow">Why McRelish</p>
-        <h2 id="why-heading" className="mt-3 max-w-2xl text-4xl font-bold">
+        <h2 id="why-heading" className="mt-3 max-w-2xl text-[2rem] font-bold leading-tight sm:text-4xl">
           Culinary excellence, redefined
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">

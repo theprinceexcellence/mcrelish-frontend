@@ -12,7 +12,7 @@ export function OrderConfirmation({ order }: { order: OrderRequest }) {
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <CheckCircle2 className="h-12 w-12 text-primary" aria-hidden="true" />
         <p className="mt-5 text-sm font-semibold text-primary">Order request prepared · awaiting confirmation</p>
-        <h1 className="mt-2 font-display text-4xl font-bold sm:text-5xl">Your next meal is one step closer.</h1>
+        <h1 className="mt-2 font-display text-3xl font-bold sm:text-5xl">Your next meal is one step closer.</h1>
         <p className="mt-3 max-w-2xl text-sm text-muted-foreground">Your details are ready. Send them to McRelish on WhatsApp or call to confirm availability and payment. Nothing has been sent automatically.</p>
         <div className="mt-6 border-y py-4">
           <p className="text-xs text-muted-foreground">Order reference</p>

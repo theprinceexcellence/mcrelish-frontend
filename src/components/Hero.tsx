@@ -1,21 +1,23 @@
+import { PriceTag } from "@/components/PriceTag";
+import { discountPercent } from "@/lib/campaign";
+import { useLiveOrdering } from "@/hooks/use-live-ordering";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero-jollof.jpg";
-import { PriceTag } from "@/components/PriceTag";
-import { discountPercent } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import { useHeroPromo } from "@/lib/promo";
 
 export function Hero() {
   const { openProduct, catalog } = useStore();
   const { promo, flyerUrl } = useHeroPromo();
-  const product = catalog.products.find(p => p.id === promo.product_id);
+  const live = useLiveOrdering();
+  const orderLabel = live ? "Order" : "Pre-Order";
+  const product = catalog.products.find((p) => p.id === promo.product_id);
   const show = promo.active && product && product.available;
   const image = flyerUrl ?? product?.image;
-  const discount = product ? discountPercent(product.price, product.wasPrice) : 0;
 
   return (
-    <section className="relative flex min-h-[calc(100dvh-4.25rem)] flex-col justify-center overflow-hidden bg-ink text-cream sm:min-h-0">
+    <section className="relative flex min-h-[calc(100dvh-var(--header-height))] flex-col justify-center overflow-hidden bg-ink text-cream sm:min-h-0">
       <img
         src={heroImage}
         alt=""
@@ -23,18 +25,23 @@ export function Hero() {
         height={1152}
         className="absolute inset-0 h-full w-full object-cover opacity-45"
       />
-      <div aria-hidden="true" className="absolute inset-0 bg-linear-to-r from-ink via-ink/85 to-ink/30" />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-linear-to-r from-ink via-ink/85 to-ink/30"
+      />
       <div className="relative mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 py-12 sm:px-6 sm:pt-16 sm:pb-14 lg:grid-cols-[1.25fr_1fr] lg:px-8 lg:pt-20 lg:pb-20">
         <div className="min-w-0">
-          <p className="eyebrow border-cream/20 bg-cream/10 text-cream">Est. 2020 · Awka, Nigeria</p>
+          <p className="eyebrow border-cream/20 bg-cream/10 text-cream">
+            Est. 2020 · Awka, Nigeria
+          </p>
           <h1 className="mt-5 max-w-3xl font-display text-[2.6rem] font-bold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
             Good food.
             <br />
             Great moments.
           </h1>
           <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-cream/80 sm:mt-5 sm:text-lg">
-            Delicious meals prepared fresh and served with care. From daily orders to full event catering, we deliver
-            quality you can trust.
+            Delicious meals prepared fresh and served with care. From daily orders to full event
+            catering, we deliver quality you can trust.
           </p>
           <div className="mt-7 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
             <Link to="/menu" className="btn-primary px-5 py-3.5 text-[15px] sm:px-7 sm:text-base">
@@ -65,9 +72,12 @@ export function Hero() {
                   height={1280}
                   className="h-20 w-20 rounded-xl object-cover"
                 />
-                {discount > 0 && (
-                  <span className="absolute left-1.5 top-1.5 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground shadow-md">
-                    {discount}% OFF
+                {product.originalPrice && (
+                  <span
+                    className="absolute left-1.5 top-1.5 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground shadow-md"
+                    style={{ filter: "drop-shadow(0 1px 2px rgb(0 0 0 / 0.35))" }}
+                  >
+                    {discountPercent(product.price, product.originalPrice)}% OFF
                   </span>
                 )}
               </span>
@@ -75,12 +85,20 @@ export function Hero() {
                 <span className="block text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
                   {promo.label}
                 </span>
-                <span className="block font-display text-lg font-semibold leading-tight">{promo.title}</span>
-                <span className="mt-0.5 block truncate text-xs text-cream/70">{promo.subtitle}</span>
-              </span>
-              <span className="flex shrink-0 flex-col items-end gap-1.5">
-                <PriceTag className="min-w-0 justify-end text-base font-bold" price={product.price} wasPrice={product.wasPrice} showBadge={false} />
-                <span className="btn-primary px-3 py-1.5 text-xs">Order</span>
+                <span className="block font-display text-lg font-semibold leading-tight">
+                  {promo.title}
+                </span>
+                <span className="mt-0.5 block truncate text-xs text-cream/70">
+                  {promo.subtitle}
+                </span>
+                <span className="mt-2 flex items-center justify-between gap-2">
+                  <PriceTag
+                    product={product}
+                    showPill={false}
+                    className="min-w-0 text-base font-bold"
+                  />
+                  <span className="btn-primary shrink-0 px-3 py-1.5 text-xs">{orderLabel}</span>
+                </span>
               </span>
             </button>
           )}
@@ -104,13 +122,13 @@ export function Hero() {
                 <p className="font-display text-2xl font-bold">{promo.title}</p>
                 <p className="mt-1 text-sm text-cream/75">{promo.subtitle}</p>
                 <div className="mt-4 flex items-center justify-between gap-3">
-                  <PriceTag className="text-2xl font-bold" price={product.price} wasPrice={product.wasPrice} />
+                  <PriceTag product={product} className="text-2xl font-bold" />
                   <button
                     type="button"
                     onClick={() => openProduct(product)}
                     className="btn-primary px-5 py-2.5 text-sm"
                   >
-                    Order {promo.title}
+                    {orderLabel}
                   </button>
                 </div>
               </div>

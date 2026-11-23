@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { PriceTag } from "@/components/PriceTag";
 import { Plus } from "lucide-react";
 import { useStore } from "@/lib/store";
 import type { Product } from "@/data/menu";
-import { PriceTag } from "@/components/PriceTag";
 import { ProductGrid } from "./ProductGrid";
-
-const NAV_OFFSET = 132; // sticky header + category bar
 
 function MenuRow({ product }: { product: Product }) {
   const { openProduct } = useStore();
@@ -23,7 +21,7 @@ function MenuRow({ product }: { product: Product }) {
           <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-muted-foreground">{product.description}</p>
           <p className="mt-1.5 text-sm font-bold">
             {product.available ? (
-              <>{product.meals && <span className="text-xs font-medium text-muted-foreground">From </span>}<PriceTag price={product.price} wasPrice={product.wasPrice} /></>
+              <PriceTag product={product} />
             ) : (
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Coming soon</span>
             )}
@@ -48,6 +46,10 @@ export function MenuBrowser({ extraTabs = [] }: { extraTabs?: { id: string; labe
   const [active, setActive] = useState<string>(sections[0]?.id ?? "");
   const barRef = useRef<HTMLDivElement>(null);
   const lockRef = useRef(0);
+  const navOffset = () => {
+    const headerHeight = document.querySelector("header")?.getBoundingClientRect().height ?? 56;
+    return headerHeight + (barRef.current?.parentElement?.getBoundingClientRect().height ?? 64);
+  };
 
   const groups = sections
     .map((s) => ({ ...s, items: products.filter((p) => p.category === s.id) }))
@@ -64,7 +66,7 @@ export function MenuBrowser({ extraTabs = [] }: { extraTabs?: { id: string; labe
       for (const t of tabs) {
         const el = document.getElementById(t.id);
         // deadband: section must clear the bar by 24px to become active
-        if (el && el.getBoundingClientRect().top - NAV_OFFSET - 24 <= 0) current = t.id;
+        if (el && el.getBoundingClientRect().top - navOffset() - 24 <= 0) current = t.id;
       }
       if (current) setActive((prev) => (prev === current ? prev : current));
     };
@@ -94,7 +96,7 @@ export function MenuBrowser({ extraTabs = [] }: { extraTabs?: { id: string; labe
     lockRef.current = Date.now() + 700;
     requestAnimationFrame(() => {
       const el = document.getElementById(id);
-      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET + 4, behavior: "smooth" });
+      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - navOffset() + 4, behavior: "smooth" });
     });
   };
 
@@ -115,7 +117,7 @@ export function MenuBrowser({ extraTabs = [] }: { extraTabs?: { id: string; labe
 
   return (
     <>
-      <div className="sticky top-[4.25rem] z-40 border-b bg-background/90 backdrop-blur-xl">
+      <div className="sticky top-[var(--header-height)] z-40 border-b bg-background/90 backdrop-blur-xl">
         <nav
           ref={barRef}
           aria-label="Menu categories"

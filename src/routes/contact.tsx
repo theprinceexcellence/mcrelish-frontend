@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { pageMeta } from "@/lib/page-meta";
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { business } from "@/data/menu";
@@ -10,14 +11,7 @@ const description =
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
+    meta: pageMeta(title, description),
   }),
   component: ContactPage,
 });
@@ -37,7 +31,7 @@ function ContactPage() {
     <section className="section-pad">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="eyebrow">Contact us</p>
-        <h1 className="mt-4 font-display text-5xl font-bold">Get in touch.</h1>
+        <h1 className="mt-4 font-display text-4xl font-bold sm:text-5xl">Get in touch.</h1>
         <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
           Placing a daily order, planning a family weekend, or organizing a large
           event? Our team is ready to assist you.
@@ -90,7 +84,7 @@ function ContactPage() {
           </ul>
 
           <div className="card-surface p-6 lg:p-8">
-            <h2 className="font-display text-3xl font-bold">Send us a message</h2>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">Send us a message</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Have a question or special request? Fill out the form and our team will
               get back to you.

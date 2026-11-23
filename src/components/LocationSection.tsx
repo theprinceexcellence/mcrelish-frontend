@@ -7,7 +7,7 @@ export function LocationSection() {
     <section className="section-pad" aria-labelledby="locations-heading">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <p className="eyebrow">Find us</p>
-        <h2 id="locations-heading" className="mt-3 text-4xl font-bold">
+        <h2 id="locations-heading" className="mt-3 text-[2rem] font-bold leading-tight sm:text-4xl">
           Order from your nearest food hub
         </h2>
 

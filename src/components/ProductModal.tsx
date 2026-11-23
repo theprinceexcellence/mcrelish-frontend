@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Minus, Plus, X } from "lucide-react";
+import { Drawer } from "vaul";
+import { Minus, Plus, X } from "lucide-react";
 import { formatNaira } from "@/lib/format";
-import { PriceTag } from "@/components/PriceTag";
 import { useStore } from "@/lib/store";
 import { nextExtraQty, priceFor } from "@/lib/customize";
-import { useScrollLock } from "@/hooks/use-scroll-lock";
 import { usePresence } from "@/hooks/use-presence";
+import { useScrollLock } from "@/hooks/use-scroll-lock";
 
 const PROTEIN_LABEL: Record<string, string> = {
   egg: "Egg",
@@ -24,16 +24,28 @@ export function ProductModal() {
   const [options, setOptions] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState("");
   const [extras, setExtras] = useState<Record<string, number>>({});
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const closeRef = useRef<HTMLButtonElement>(null);
   const presence = usePresence(activeProduct);
+  const [isMobile, setIsMobile] = useState(false);
+  const [lastProduct, setLastProduct] = useState(activeProduct);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (activeProduct) setLastProduct(activeProduct);
+  }, [activeProduct]);
 
   useEffect(() => {
     if (!activeProduct) return;
     setQuantity(1);
     setNotes("");
     setExtras({});
-    setOpenGroups({});
     setOptions(() => {
       const initial = Object.fromEntries(
         (activeProduct.options ?? []).map((group) => [group.id, group.choices[0]!.id]),
@@ -58,10 +70,10 @@ export function ProductModal() {
     return () => document.removeEventListener("keydown", onKey);
   }, [activeProduct, closeProduct]);
 
-  useScrollLock(Boolean(activeProduct));
+  useScrollLock(Boolean(activeProduct) && !isMobile);
 
-  if (!presence.rendered) return null;
-  const product = presence.rendered;
+  const product = isMobile ? lastProduct : presence.rendered;
+  if (!product) return null;
   const meals = product.meals;
   const sel = { options, extras };
   const unitPrice = priceFor(product, sel);
@@ -74,26 +86,16 @@ export function ProductModal() {
     list: (product.extras ?? []).filter((e) => e.group === groupName),
   })).filter((g) => g.list.length > 0);
 
-  return (
-    <div
-      data-state={presence.state}
-      className="sheet-overlay fixed inset-0 z-[60] flex items-end justify-center p-0 sm:items-center sm:p-6"
-      onClick={closeProduct}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="product-modal-title"
-        onClick={(e) => e.stopPropagation()}
-        className="sheet-in glass-sheet flex max-h-[92dvh] w-full max-w-3xl flex-col overflow-hidden rounded-t-[24px] transition-[scale] duration-100 active:scale-[0.99] sm:rounded-2xl"
-      >
-        <div className="flex-1 overflow-y-auto">
+  const body = (
+    <>
+        <div className="flex-1 overflow-y-auto overscroll-contain">
           <div className="grid sm:grid-cols-2">
             <div className="relative aspect-4/3 sm:aspect-auto sm:min-h-full">
               <img
                 src={product.image}
                 alt={product.name}
-                className="h-full w-full object-cover sm:absolute sm:inset-0 sm:rounded-l-3xl"
+                draggable={false}
+                className="h-full w-full select-none object-cover sm:absolute sm:inset-0 sm:rounded-l-3xl"
               />
               <button
                 ref={closeRef}
@@ -128,9 +130,7 @@ export function ProductModal() {
               {product.note && (
                 <p className="mt-1 text-xs text-muted-foreground">{product.note}</p>
               )}
-              <p className="mt-4 text-2xl font-bold">
-                <PriceTag price={unitPrice} wasPrice={product.wasPrice} />
-              </p>
+              <p className="mt-4 text-2xl font-bold">{formatNaira(unitPrice)}</p>
 
               {meals && (
                 <fieldset className="mt-5">
@@ -172,31 +172,17 @@ export function ProductModal() {
                     <div key={groupName} className="mt-2">
                       {(() => {
                         const picked = list.reduce((n, e) => n + (extras[e.id] ?? 0), 0);
-                        const open = !!openGroups[groupName];
                         return (
-                          <button
-                            type="button"
-                            aria-expanded={open}
-                            onClick={() => setOpenGroups((g) => ({ ...g, [groupName]: !g[groupName] }))}
-                            className="flex w-full items-center justify-between rounded-xl border border-border px-4 py-3 text-left md:pointer-events-none md:border-0 md:px-0 md:py-1"
-                          >
-                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                              {groupName}
-                              {picked > 0 && (
-                                <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-[10px] text-primary-foreground">
-                                  {picked} added
-                                </span>
-                              )}
-                            </span>
-                            <ChevronDown
-                              aria-hidden="true"
-                              className={`h-4 w-4 transition-transform duration-300 md:hidden ${open ? "rotate-180" : ""}`}
-                            />
-                          </button>
+                          <p className="py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            {groupName}
+                            {picked > 0 && (
+                              <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-[10px] text-primary-foreground">
+                                {picked} added
+                              </span>
+                            )}
+                          </p>
                         );
                       })()}
-                      <div className="collapse-grid" data-open={!!openGroups[groupName]}>
-                      <div className="min-h-0 overflow-hidden">
                       <ul className="mt-1 divide-y divide-border rounded-xl border border-border">
                         {list.map((e) => {
                           const qty = extras[e.id] ?? 0;
@@ -254,8 +240,6 @@ export function ProductModal() {
                           );
                         })}
                       </ul>
-                      </div>
-                      </div>
                     </div>
                   ))}
                 </fieldset>
@@ -316,6 +300,41 @@ export function ProductModal() {
             </button>
           </div>
         </div>
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer.Root open={!!activeProduct} onOpenChange={(o) => !o && closeProduct()}>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 z-[60] bg-ink/12" />
+          <Drawer.Content
+            aria-describedby={undefined}
+            className="glass-sheet fixed inset-x-0 bottom-0 z-[61] flex max-h-[92dvh] flex-col overflow-hidden rounded-t-[24px] outline-none"
+          >
+            <Drawer.Title className="sr-only">{product.name}</Drawer.Title>
+            <div aria-hidden className="absolute left-1/2 top-2 z-10 h-1 w-10 -translate-x-1/2 rounded-full bg-foreground/25" />
+            {body}
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
+    );
+  }
+
+  return (
+    <div
+      data-state={presence.state}
+      className="sheet-overlay fixed inset-0 z-[60] flex items-end justify-center p-0 sm:items-center sm:p-6"
+      onClick={closeProduct}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="product-modal-title"
+        onClick={(e) => e.stopPropagation()}
+        className="sheet-in glass-sheet flex max-h-[92dvh] w-full max-w-3xl flex-col overflow-hidden rounded-t-[24px] sm:rounded-2xl"
+      >
+        {body}
       </div>
     </div>
   );
